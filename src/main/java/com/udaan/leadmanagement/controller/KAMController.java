@@ -1,13 +1,16 @@
 package com.udaan.leadmanagement.controller;
 
 import com.udaan.leadmanagement.exception.ErrorResponse;
+import com.udaan.leadmanagement.exception.KAMNotFoundException;
+import com.udaan.leadmanagement.exception.KAMPerformanceException;
 import com.udaan.leadmanagement.model.KAM;
-import com.udaan.leadmanagement.model.KAMPerformance;
 import com.udaan.leadmanagement.model.RestaurantLead;
 import com.udaan.leadmanagement.service.KAMService;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/kams")
 @RequiredArgsConstructor
+@Validated
 public class KAMController {
     private final KAMService kamService;
 
@@ -75,31 +79,42 @@ public class KAMController {
         }
     }
 
-    @GetMapping("/top-performing")
-    public ResponseEntity<?> getTopPerformingKAMs() {
+    @GetMapping("/{kamId}/performance")
+    public ResponseEntity<Object> getPerformanceByKamId(@PathVariable long kamId) {
         try {
-            List<KAMPerformance> topPerformingKAMs = kamService.getTopPerformingKAMs();
-            if (topPerformingKAMs == null || topPerformingKAMs.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ErrorResponse("No top-performing KAMs found"));
-            }
-            return ResponseEntity.ok(topPerformingKAMs);
+            return ResponseEntity.ok(kamService.getKAMPerformance(kamId));
+        } catch (KAMNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("Error retrieving top-performing KAMs: " + e.getMessage()));
+                    .body(new ErrorResponse("Error retrieving KAM performance: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/top-performing")
+    public ResponseEntity<Object> getTopPerformingKAMs(@RequestParam(defaultValue = "3") @Min(1) int count) {
+        try {
+            return ResponseEntity.ok(kamService.getTopPerformingKAMs(count));
+        } catch (KAMPerformanceException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Error retrieving top performing KAMs: " + e.getMessage()));
         }
     }
 
     @GetMapping("/under-performing")
-    public ResponseEntity<?> getUnderPerformingKAMs() {
+    public ResponseEntity<Object> getUnderPerformingKAMs(@RequestParam(defaultValue = "3") @Min(1) int count) {
         try {
-            List<KAMPerformance> underPerformingKAMs = kamService.getUnderPerformingKAMs();
-            if (underPerformingKAMs == null || underPerformingKAMs.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ErrorResponse("No under-performing KAMs found"));
-            }
-            return ResponseEntity.ok(underPerformingKAMs);
+            return ResponseEntity.ok(kamService.getUnderPerformingKAMs(count));
+        } catch (KAMPerformanceException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse("Error retrieving under-performing KAMs: " + e.getMessage()));
+                    .body(new ErrorResponse("Error retrieving under performing KAMs: " + e.getMessage()));
         }
     }
 }

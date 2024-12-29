@@ -1,5 +1,6 @@
 package com.udaan.leadmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-// Entity: KAM (Key Account Manager)
 @Entity
 @Data
 @NoArgsConstructor
@@ -20,6 +20,7 @@ public class KAM {
     private String email;
     private String phone;
 
-    @OneToMany(mappedBy = "kam", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "assignedKam", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<RestaurantLead> leads;
 }

@@ -1,11 +1,11 @@
 package com.udaan.leadmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// Entity: Contact (POC)
 @Entity
 @Data
 @NoArgsConstructor
@@ -23,6 +23,7 @@ public class Contact {
 
     @ManyToOne
     @JoinColumn(name = "restaurant_lead_id")
+    @JsonBackReference
     private RestaurantLead restaurantLead;
 }
 

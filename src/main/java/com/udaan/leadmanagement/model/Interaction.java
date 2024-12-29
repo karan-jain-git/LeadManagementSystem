@@ -1,5 +1,6 @@
 package com.udaan.leadmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.udaan.leadmanagement.enums.InteractionType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-// Entity: Interaction
 @Entity
 @Data
 @NoArgsConstructor
@@ -26,5 +26,6 @@ public class Interaction {
 
     @ManyToOne
     @JoinColumn(name = "restaurant_lead_id")
+    @JsonBackReference
     private RestaurantLead restaurantLead;
 }
